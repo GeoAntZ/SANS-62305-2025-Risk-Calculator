@@ -46,14 +46,52 @@ class RiskAggregator:
             lb = annex_c_loss_logic.calculate_lx(zone.loss_type, zone.rf.value, zone.rp)
             rb = nd * pb * lb
 
-            # Component RU: Injury to living beings (S3 - via Lines)
-            # For simplicity, calculating direct structure components first
+            # Initialize line risks
+            ru = 0.0
+            rv = 0.0
+            rw = 0.0
+            rz = 0.0
 
-            zone_total = ra + rb
+            lu = la # Loss of human life
+            lv = lb # Loss of physical damage
+            # LW/LZ uses Loss of Systems (LO). Assuming calculate_lx handles it or using LB as proxy for now.
+            lw = lb
+            lz = lw
+
+            for line in self.structure.lines:
+                nl_line = annex_a_dangerous_events.calculate_nl(line, self.structure, self.ng)
+                ni_line = annex_a_dangerous_events.calculate_ni(line, self.ng)
+
+                # Component RU: Injury to living beings (S3 - via Lines)
+                # RU = NL * PU * LU
+                pu = annex_b_probability.calculate_pu() # Should pass line info
+                ru += nl_line * pu * lu
+
+                # Component RV: Physical damage (S3 - via Lines)
+                # RV = NL * PV * LV
+                pv = annex_b_probability.calculate_pv()
+                rv += nl_line * pv * lv
+
+                # Component RW: Failure of internal systems (S3 - via Lines)
+                # RW = NL * PW * LW
+                pw = annex_b_probability.calculate_pw()
+                rw += nl_line * pw * lw
+
+                # Component RZ: Failure of internal systems (S4 - via Near Lines)
+                # RZ = (NI - NL) * PZ * LZ
+                # Note: NI is flashes near line. RZ driven by NI.
+                pz = annex_b_probability.calculate_pz()
+                rz += ni_line * pz * lz
+
+            zone_total = ra + rb + ru + rv + rw + rz
             total_r1 += zone_total
 
             results[f"zone_{zone.name}_ra"] = ra
             results[f"zone_{zone.name}_rb"] = rb
+            results[f"zone_{zone.name}_ru"] = ru
+            results[f"zone_{zone.name}_rv"] = rv
+            results[f"zone_{zone.name}_rw"] = rw
+            results[f"zone_{zone.name}_rz"] = rz
 
         results["total_r1"] = total_r1
         results["is_safe"] = total_r1 <= self.RT_R1

@@ -59,3 +59,31 @@ def calculate_pm(ks1: float, ks2: float, uw: float = 1.5) -> float:
     pm_value = 1.0 - ((ratio - 0.07) / (5 - 0.07))
 
     return float(pm_value)
+
+def calculate_pu(lps_level=None, spd_level=None) -> float:
+    """
+    Probability of injury to living beings due to touch voltage on line (PU).
+    Depends on line shielding, grounding, etc. Placeholder 1.0.
+    """
+    return 1.0
+
+def calculate_pv(lps_level=None, spd_level=None) -> float:
+    """
+    Probability of physical damage due to flashes to line (PV).
+    Depends on line shielding, SPD (Table B.8). Placeholder 1.0.
+    """
+    return 1.0
+
+def calculate_pw(lps_level=None, spd_level=None) -> float:
+    """
+    Probability of failure of internal systems due to flashes to line (PW).
+    Depends on SPD (Table B.9). Placeholder 1.0.
+    """
+    return 1.0
+
+def calculate_pz(lps_level=None, spd_level=None) -> float:
+    """
+    Probability of failure of internal systems due to flashes near line (PZ).
+    Depends on SPD (Table B.9). Placeholder 1.0.
+    """
+    return 1.0

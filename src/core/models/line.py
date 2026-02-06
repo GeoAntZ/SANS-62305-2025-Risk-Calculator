@@ -25,11 +25,13 @@ class LineSection:
         installation: InstallationType = InstallationType.AERIAL,
         line_height: float = 6.0,  # Ha
         rho_ground: float = 250.0,  # Added this to fix your error
+        environment_factor: float = 1.0,
     ):
         self.LL = length
         self.installation = installation
         self.Ha = line_height
         self.rho = rho_ground  # Now 'self.rho' is known to the class
+        self.ce = environment_factor
         self.rs = 0.0  # Shield resistance
 
     def calculate_al(self, hb: float) -> float:
@@ -42,12 +44,24 @@ class LineSection:
             # For aerial lines, Dc = 3 * (Ha + Hb)
             dc = 3 * (self.Ha + hb)
         else:
-            # For buried lines, Dc = sqrt(rho)
+            # For buried lines, Dc = math.sqrt(rho)
             dc = math.sqrt(self.rho)
 
         # AL = (LL - 3*(Ha + Hb)) * Dc
         # Note: 3*(Ha + Hb) represents the 'transition' zones at ends of the line
         return (self.LL - 3 * (self.Ha + hb)) * dc
+
+    def calculate_ai(self) -> float:
+        """
+        Calculates AI (area for flashes near the service).
+        Standard assumption: 4000m width for aerial, 50*sqrt(rho) for buried.
+        """
+        if self.installation == InstallationType.AERIAL:
+            width = 4000.0  # Standard max width
+        else:
+            width = 50 * math.sqrt(self.rho)  # 2 * 25 * sqrt(rho)
+
+        return self.LL * width
 
     @property
     def ci(self) -> float:

@@ -54,3 +54,18 @@ def _calculate_collection_area_m(structure):
         + (2 * 250 * (structure.L + structure.W))
         + (math.pi * 250**2)
     )
+
+def calculate_ni(line, ground_strike_density: float) -> float:
+    """
+    Frequency of flashes near the service line (NI).
+    Equation A.5: NI = NG * AI * CE * CT * 1e-6
+    """
+    total_ni = 0
+    for section in line.sections:
+        ai = section.calculate_ai()
+        ce = getattr(section, "ce", 1.0)
+
+        total_ni += (
+            ground_strike_density * ai * ce * line.line_type.value * 1e-6
+        )
+    return total_ni

@@ -1,3 +1,4 @@
+from __future__ import annotations
 import math
 from enum import Enum
 from typing import TYPE_CHECKING, List, Optional
@@ -16,7 +17,8 @@ class LocationFactor(Enum):
 # It prevents circular import errors at runtime
 if TYPE_CHECKING:
     from src.core.models.protection import LPS, TWS
-    from src.core.models.zone import Zone
+    from src.core.models.zone import RiskZone
+    from src.core.models.line import Line
 
 
 class Structure:
@@ -35,8 +37,14 @@ class Structure:
         self.CD = location.value
 
         self._manual_ad: Optional[float] = None
+        self._manual_am: Optional[float] = None
         self.protrusions: List[float] = []  # List of heights of protrusions
-        self.zones = []
+        self.zones: List["RiskZone"] = []
+        self.lines: List["Line"] = []
+
+    def add_line(self, line: "Line"):
+        """Attaches an incoming service line to the structure."""
+        self.lines.append(line)
 
     def set_lps(self, lps_system: LPS):
         """Attaches an LPS system to the structure."""
@@ -81,6 +89,7 @@ class Structure:
         if height > 0:
             self.protrusions.append(height)
 
+    @property
     def am(self) -> float:
         """
         Calculates AM (area for flashes near structure).
