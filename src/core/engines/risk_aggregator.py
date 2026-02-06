@@ -31,18 +31,20 @@ class RiskAggregator:
         # --- 2. Summing Risks across all Zones ---
         total_r1 = 0.0
 
+        # Pre-calculate probabilities constant for all zones
+        pa = annex_b_probability.calculate_pa(
+            self.structure.lps, getattr(self.structure, "tws", None)
+        )
+        pb = annex_b_probability.calculate_pb(self.structure.lps)
+
         for zone in self.structure.zones:
             # Component RA: Injury to living beings (S1)
             # RA = ND * PA * LA
-            pa = annex_b_probability.calculate_pa(
-                self.structure.lps, getattr(self.structure, "tws", None)
-            )
             la = annex_c_loss_logic.calculate_lo(zone.nz, zone.nt, zone.tz)  # Annex C.5
             ra = nd * pa * la
 
             # Component RB: Physical damage to structure (S1)
             # RB = ND * PB * LB
-            pb = annex_b_probability.calculate_pb(self.structure.lps)
             lb = annex_c_loss_logic.calculate_lx(zone.loss_type, zone.rf.value, zone.rp)
             rb = nd * pb * lb
 
