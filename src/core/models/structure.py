@@ -35,14 +35,15 @@ class Structure:
         self.CD = location.value
 
         self._manual_ad: Optional[float] = None
+        self._manual_am: Optional[float] = None
         self.protrusions: List[float] = []  # List of heights of protrusions
         self.zones = []
 
-    def set_lps(self, lps_system: LPS):
+    def set_lps(self, lps_system: "LPS"):
         """Attaches an LPS system to the structure."""
         self.lps = lps_system
 
-    def set_tws(self, tws_system: TWS):
+    def set_tws(self, tws_system: "TWS"):
         """Attaches a Thunderstorm Warning System to the structure."""
         self.tws = tws_system
 
@@ -81,6 +82,7 @@ class Structure:
         if height > 0:
             self.protrusions.append(height)
 
+    @property
     def am(self) -> float:
         """
         Calculates AM (area for flashes near structure).
